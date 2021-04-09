@@ -3,9 +3,14 @@ import styled from "styled-components";
 import Sidebar from "../../components/Sidebar";
 import { db } from "../../firebase";
 import ChatScreen from "../../components/chatscreen"
+import { useState, useEffect } from 'react';
+import Loading from "../loading"
 function Chat({messages, chat}) {
   // console.log(messages,chat, " this is laddmald ")
-  return (
+  const [loading, setLoading] = useState(true);
+
+  useEffect(()=>setTimeout(()=>setLoading(false),1000))
+  return (<>{loading? <Loading />:
     <Container>
       <Head>
         <title>chat</title>
@@ -14,7 +19,7 @@ function Chat({messages, chat}) {
       <ChatContainer>
         <ChatScreen chat={chat} messages={messages}/>
       </ChatContainer>
-    </Container>
+    </Container>}</>
   );
 }
 

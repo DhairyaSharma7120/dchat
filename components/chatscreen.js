@@ -39,6 +39,7 @@ function ChatScreen({ chat, messages }) {
         <Message
           key={message.id}
           user={message.data().user}
+          messageId = {message.id}
           message={{
             ...message.data(),
             timestamp: message.data().timestamp?.toDate().getTime(),
