@@ -1,0 +1,16 @@
+
+.googleBtn{
+    /* background-color:red; */
+    border: none;
+    width:100%;
+    /* background-color: white; */
+    padding: 10px;
+    outline: none;
+    cursor: pointer;
+    transition:0.3s;
+    font-weight: bold;
+}
+.googleBtn:hover{
+    background-color: #2da639;
+    color: white;
+}

@@ -1,0 +1,10 @@
+.main{
+    background-color: #f7f7f7;
+    /* color: black; */
+    
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    padding: 1px;
+}
+
