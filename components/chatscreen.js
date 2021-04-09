@@ -129,6 +129,11 @@ const Container = styled.div`
   /* overflow:scroll; */
   height: 100%;
   width: 70vw;
+  
+  @media (max-width: 600px) {
+    width: 100vw;
+    z-index: 99;
+  }
 `;
 
 const InputContainer = styled.form`

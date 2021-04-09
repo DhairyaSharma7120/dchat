@@ -9,7 +9,7 @@ function Login() {
       <Head>
         <title>Login Page</title>
       </Head>
-      <Logo src="/images/WhatsApp-logo.png" />
+      <Logo className={styles.Logo} src="/images/WhatsApp-logo.png" />
       <LoginContainer>
         <LoginItems>
           <LoginButton>
@@ -27,6 +27,8 @@ const Container = styled.div`
   display: grid;
   grid-template-columns: 50% 50%;
   overflow: hidden;
+
+  
 `;
 const LoginButton = styled.div`
   border: 2px solid #2da639;
@@ -35,6 +37,10 @@ const LoginButton = styled.div`
   :hover {
     border: 2px solid #2da639;
   }
+  
+  @media (max-width: 600px) {
+    transform:scale(0.8);
+  }
 `;
 
 const LoginItems = styled.div`
@@ -42,6 +48,7 @@ const LoginItems = styled.div`
   align-self: center;
   transform: skewX(-40deg);
 `;
+
 const LoginContainer = styled.div`
   /* background-color: white;   */
   border-left: 2px solid #2da639;
@@ -50,10 +57,15 @@ const LoginContainer = styled.div`
   transform: skewX(40deg);
   display: grid;
 `;
+
 const Logo = styled.img`
   justify-self: center;
   align-self: center;
   width: 400px;
   height: 300px;
+  
+  @media (max-width: 600px) {
+    transform:scale(0.5);
+  }
 `;
 export default Login;

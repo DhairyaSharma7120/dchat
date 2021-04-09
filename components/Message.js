@@ -30,7 +30,7 @@ const MessageElement = styled.p`
   margin: 10px;
   min-width: 60px;
   padding-bottom:20px;
-  padding-right: 100px;
+  padding-right: 60px;
   position: relative;
   text-align: right;
 `;

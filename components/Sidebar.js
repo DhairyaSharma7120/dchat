@@ -86,7 +86,10 @@ const Container = styled.div`
   width: 30vw;
   height:100vh;
   overflow:scroll;
-
+  
+  @media (max-width: 600px) {
+    width:100vw;
+  }
 `;
 const UserChatDetails = styled.div`
  
