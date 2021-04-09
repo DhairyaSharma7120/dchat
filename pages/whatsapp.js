@@ -3,7 +3,7 @@ import Head from "next/head";
 import styles from "../styles/whatsapp.module.css";
 import Sidebar from "../components/Sidebar";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth, db } from "./firebase";
+import { auth, db } from "../firebase";
 import Login from "./login";
 import Loading from "./loading";
 import firebase from "firebase";

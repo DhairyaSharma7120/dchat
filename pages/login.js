@@ -2,7 +2,7 @@ import styled from "styled-components";
 import Head from "next/head";
 // import { Button } from "@material-ui/core";
 import styles from "../styles/login.module.css";
-import {signInWithGoogle} from "./firebase"
+import {signInWithGoogle} from "../firebase"
 function Login() {
   return (
     <Container>

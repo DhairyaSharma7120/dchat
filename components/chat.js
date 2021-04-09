@@ -1,7 +1,7 @@
 import styled from "styled-components"
 import { Avatar } from '@material-ui/core'
 import getRecipientEmail from "../utils/getRecipientEmail"
-import { auth, db } from "../pages/firebase";
+import { auth, db } from "../firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useCollection } from "react-firebase-hooks/firestore";
 import {useRouter} from "next/router"

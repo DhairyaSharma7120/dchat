@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { Avatar, IconButton } from "@material-ui/core";
-import { auth, db } from "../pages/firebase";
+import { auth, db } from "../firebase";
 import { useRouter } from "next/router";
 import { useAuthState } from "react-firebase-hooks/auth";
 import AttachFileIcon from "@material-ui/icons/AttachFile";
