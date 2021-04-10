@@ -6,32 +6,31 @@ import SearchIcon from "@material-ui/icons/Search";
 import { auth, db } from "../firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useCollection } from "react-firebase-hooks/firestore";
-import Chat from "../components/chat"
+import Chat from "../components/chat";
 import styles from "../styles/login.module.css";
-import styles2 from "../styles/sidebar.module.css"
+import styles2 from "../styles/sidebar.module.css";
 import * as EmailValidator from "email-validator";
+import { useRef } from "react";
+function Sidebar({ email }) {
+  const [user] = useAuthState(auth);
 
-  function Sidebar() {
-    const [user] = useAuthState(auth);
-    
   const userChatRef = db
     .collection("chats")
     .where("users", "array-contains", user.email);
   const [chatsSnapshot] = useCollection(userChatRef);
 
   // console.log(userChatRef,"this is the snapshot")
-  const chatAlreadyExists = (recipientEmail) => 
-  !!chatsSnapshot?.docs.find(
-    (chat) =>
-      chat.data().users.find((user) => user === recipientEmail)
-        ?.length > 0
-  );
-
+  const chatAlreadyExists = (recipientEmail) =>
+    !!chatsSnapshot?.docs.find(
+      (chat) =>
+        chat.data().users.find((user) => user === recipientEmail)?.length > 0
+    );
+ 
   const createChat = () => {
     const input = prompt(
       "Enter The Email Of The User You Want To Start Chat With"
     );
-    if(!input) return null;
+    if (!input) return null;
     // console.log(EmailValidator.validate(input),"this is the validator")
     if (
       EmailValidator.validate(input) &&
@@ -44,8 +43,6 @@ import * as EmailValidator from "email-validator";
       });
     }
   };
- 
-
 
   return (
     <Container>
@@ -73,9 +70,13 @@ import * as EmailValidator from "email-validator";
         Start a new chat
       </button>
 
-      <UserChatDetails className={styles2.sidebarChatDetail}> {chatsSnapshot?.docs.map(chat =>(
-          <Chat key={chat.id} id={chat.id} users={chat.data().users}/>
-      ))}</UserChatDetails>
+      <UserChatDetails className={`${styles2.sidebarChatDetail}`}>
+        {" "}
+        {chatsSnapshot?.docs.map((chat) => (
+          <Chat key={chat.id} id={chat.id} chatsSnapshot={chatsSnapshot} users={chat.data().users} />
+        ))}
+        
+      </UserChatDetails>
     </Container>
   );
 }
@@ -84,16 +85,15 @@ export default Sidebar;
 
 const Container = styled.div`
   width: 30vw;
-  height:100vh;
-  overflow:scroll;
-  
+  height: 100vh;
+  overflow-y: scroll;
+  overflow-x: hidden;
+
   @media (max-width: 600px) {
-    width:100vw;
+    width: 100vw;
   }
 `;
-const UserChatDetails = styled.div`
- 
-`;
+const UserChatDetails = styled.div``;
 const SearchInput = styled.input`
   outline: none;
   border: none;

@@ -9,7 +9,7 @@ import { useCollection } from "react-firebase-hooks/firestore";
 import {useRef} from "react"
 import InsertEmoticonIcon from "@material-ui/icons/InsertEmoticon";
 import MicIcon from "@material-ui/icons/Mic";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import firebase from 'firebase'
 import Message from "./Message"
 import getRecipientEmail from "../utils/getRecipientEmail"
@@ -34,7 +34,7 @@ function ChatScreen({ chat, messages }) {
   const showMessages = () => {
     
     if (messagesSnapshot) {
-      console.log(messagesSnapshot.docs.map(message=>message.data()),"this is working but i dont know")
+      // console.log(messagesSnapshot.docs.map(message=>message.data()),"this is working but i dont know")
        return messagesSnapshot.docs.map(message => 
         <Message
           key={message.id}
@@ -54,7 +54,9 @@ function ChatScreen({ chat, messages }) {
       block: "start"
     })
   }
-
+  useEffect(()=>{
+    scrollToBottom()
+  })
   const sendMessage = (e) =>{
     e.preventDefault();
     db.collection("users").doc(user.uid).set({ 
@@ -153,7 +155,7 @@ const MessageContainer = styled.div`
   /* padding: 10px;
   padding-bottom: 0px; */
   padding: 0 10px 0px 10px;
-  background-color: #ece5dd;
+  background-color: #e5ddd5;
   height:81vh;
   overflow-y: scroll;
 `;
@@ -198,6 +200,8 @@ const HeaderInfo = styled.div`
 
   > h4 {
     margin: 0px;
+    width: 35vw;
+    overflow:hidden;
   }
 
   > p {

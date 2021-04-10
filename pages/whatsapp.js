@@ -8,8 +8,7 @@ import Login from "./login";
 import Loading from "./loading";
 import firebase from "firebase";
 import WhatsAppIcon from "@material-ui/icons/WhatsApp";
-import anime from "animejs";
-
+import styled from "styled-components";
 function Home() {
   const [user] = useAuthState(auth);
   const [loading, setLoading] = useState(true);
@@ -24,7 +23,7 @@ function Home() {
         { merge: true }
       );
     }
-    setLoading(true)
+    setLoading(true);
   }, [user]);
   setTimeout(() => setLoading(false), 3000);
   return (
@@ -35,10 +34,57 @@ function Home() {
       </Head>
 
       <main className={styles.main}>
-        {loading ? <Loading /> : !user ? <Login /> : <Sidebar />}
+        {loading ? (
+          <Loading />
+        ) : !user ? (
+          <Login />
+        ) : (
+          <WhatsApp>
+            <Sidebar /> 
+            <Welcome>
+              <Icon><WhatsAppIcon style={{ fontSize: 400 }}/></Icon>
+              <Message>Welcome to whatsapp clone made by Drockss</Message>
+            </Welcome>
+          </WhatsApp>
+        )}
       </main>
     </div>
   );
 }
+const WhatsApp = styled.div`
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 30% 70%;
+`;
+const Welcome = styled.div`
+  width: 100%;
+  height: 100%;
+  justify-self: center;
+  align-self: center;
+  display: grid;
+  grid-template-rows: 70% 30%;
+
+  @media (max-width: 600px) {
+    display:none;
+  }
+`;
+
+const Icon = styled.div`
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-content: center;
+  align-content: flex-end;
+  color: #07bc4c;
+  right: 0;
+`;
+const Message = styled.div`
+  justify-self: center;
+
+  font-weight:bold;
+  color: #07bc4c;
+  right: 0;
+`;
 
 export default Home;
