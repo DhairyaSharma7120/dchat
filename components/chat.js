@@ -9,9 +9,11 @@ import MoreVertIcon from "@material-ui/icons/MoreVert";
 import { makeStyles } from "@material-ui/core/styles";
 import Popover from "@material-ui/core/Popover";
 import Typography from "@material-ui/core/Typography";
-import React, { useRef } from "react";
+import React, { useRef,useState } from "react";
+import Loading from "../pages/loading"
 
 function Chat({ id, users, chatsSnapshot }) {
+    const [loading, setLoading ] = useState(false);
   const useStyles = makeStyles((theme) => ({
     typography: {
       width: "150px",
@@ -64,8 +66,14 @@ function Chat({ id, users, chatsSnapshot }) {
 
     db.collection("chats").doc(id).delete()    
   }
-  return (
-    <Container>
+
+  const load = ()=>{
+    setLoading(true)
+    router.events.on('routeChangeStart', () => setLoading(true));
+    router.events.on('routeChangeComplete', () => setLoading(false));
+  }
+  return (<> { loading? (<Loading />):(
+    <Container onClick={load}>
       <UserDetail  onClick={enterChat}>{recipient ? (
         <UserAvatar src={recipient?.photoURL} />
       ) : (
@@ -99,7 +107,7 @@ function Chat({ id, users, chatsSnapshot }) {
           Clear Chat
         </Typography>
       </Popover></Options>
-    </Container>
+    </Container>)}</>
   );
 }
 const Container = styled.div`
