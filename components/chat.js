@@ -68,7 +68,7 @@ function Chat({ id, users, chatsSnapshot }) {
   }
 
   const load = ()=>{
-    setLoading(true)
+  
     router.events.on('routeChangeStart', () => setLoading(true));
     router.events.on('routeChangeComplete', () => setLoading(false));
   }
@@ -119,7 +119,7 @@ const Container = styled.div`
   height: 80px;
   word-break: break-word;
   border-bottom: 1px solid #e9eaeb;
-  /* overflow:scroll; */
+  overflow:hidden;
   transition: 0.1s;
   :hover {
     background-color: #f2f2f2;
@@ -139,6 +139,10 @@ const UserDetail = styled.div`
 `;
 const UserMail = styled.div`
      align-self: center;
+     width: 100%;
+     overflow: hidden;
+     display: grid;
+    
 `;
 
 const OptionsIcon = styled(MoreVertIcon)`

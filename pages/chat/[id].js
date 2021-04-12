@@ -21,24 +21,17 @@ function Chat({messages, chat}) {
       </Head>
       <Sidebar email={recipientEmail}/>
       <ChatContainer>
-        {chat=="redirect"?<>User Is Deleted</> : <ChatScreen chat={chat} messages={messages}/>}
+        <ChatScreen chat={chat} messages={messages}/>
       </ChatContainer>
     </Container>}</>
   );
 }
 
 export async function getServerSideProps(context) {
-  if(context.query.id === "redirect"){
-    return {
-      props: {
-          messages: "redirect",
-          chat: "redirect"
-      }
-  }
-  }
+ 
   const ref = db.collection("chats").doc(context.query.id);
   // console.log(ref.collection("messages"), "this is showing");
-  console.log(ref.collection("messages") , "this is the ref")
+  // console.log(ref.collection("messages") , "this is the ref")
   // prep the message on the server
   const messageRes = await ref
     .collection("messages")
@@ -69,7 +62,10 @@ export async function getServerSideProps(context) {
 }
 const Container = styled.div`
   display: flex;
+ 
+
 `;
+
 const ChatContainer = styled.div`
  
 `;

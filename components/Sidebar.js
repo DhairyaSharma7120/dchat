@@ -11,6 +11,7 @@ import styles from "../styles/login.module.css";
 import styles2 from "../styles/sidebar.module.css";
 import * as EmailValidator from "email-validator";
 import { useRef } from "react";
+import Card from '@material-ui/core/Card';
 function Sidebar({ email }) {
   const [user] = useAuthState(auth);
 
@@ -21,16 +22,17 @@ function Sidebar({ email }) {
 
   // console.log(userChatRef,"this is the snapshot")
   const chatAlreadyExists = (recipientEmail) =>
-    !!chatsSnapshot?.docs.find(
-      (chat) =>
-        chat.data().users.find((user) => user === recipientEmail)?.length > 0
+    chatsSnapshot?.docs.some((chat) =>
+      chat.data().users.some((user) => user === recipientEmail)
     );
- 
+
   const createChat = () => {
     const input = prompt(
       "Enter The Email Of The User You Want To Start Chat With"
     );
+
     if (!input) return null;
+    // console.log(chatAlreadyExists(input),"this is boolean")
     // console.log(EmailValidator.validate(input),"this is the validator")
     if (
       EmailValidator.validate(input) &&
@@ -57,6 +59,7 @@ function Sidebar({ email }) {
           </IconButton>
         </IconContainer>
       </Header>
+      <Content>
       <Search>
         <SearchContainer>
           <IconButton>
@@ -73,10 +76,14 @@ function Sidebar({ email }) {
       <UserChatDetails className={`${styles2.sidebarChatDetail}`}>
         {" "}
         {chatsSnapshot?.docs.map((chat) => (
-          <Chat key={chat.id} id={chat.id} chatsSnapshot={chatsSnapshot} users={chat.data().users} />
+          <Chat
+            key={chat.id}
+            id={chat.id}
+            chatsSnapshot={chatsSnapshot}
+            users={chat.data().users}
+          />
         ))}
-        
-      </UserChatDetails>
+      </UserChatDetails></Content>
     </Container>
   );
 }
@@ -86,14 +93,25 @@ export default Sidebar;
 const Container = styled.div`
   width: 30vw;
   height: 100vh;
-  overflow-y: scroll;
-  overflow-x: hidden;
+  margin-left: 10px;
 
   @media (max-width: 600px) {
     width: 100vw;
+    /* margin-left: 12px; */
+    margin: 0px;
   }
 `;
 const UserChatDetails = styled.div``;
+const ModifiedCard = styled.div`
+height: 80vh;`;
+const Content = styled.div`
+  margin-top: 20px;
+  /* border: 1px solid #37caec; */
+  background-color: white;
+  height: 85vh;
+  box-shadow: 0px 0px 4px 0px #37caec
+  
+  `;
 const SearchInput = styled.input`
   outline: none;
   border: none;
@@ -119,14 +137,19 @@ const Header = styled.div`
   display: flex;
   position: sticky;
   top: 0;
-  background-color: #ededed;
+  margin-top: 5px;
+  background-color: white;
   /* background-color: whitesmoke; */
   z-index: 1;
   justify-content: space-between;
   align-items: center;
   padding: 15px;
   height: 60px;
-  border-bottom: 4px solid #07bc4c;
+  border: 3px solid #37caec;
+  @media (max-width: 600px) {
+    border: none;
+    border-bottom: 3px solid #37caec;
+  }
 `;
 
 const UserAvatar = styled(Avatar)`

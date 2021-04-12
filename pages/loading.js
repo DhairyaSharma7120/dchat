@@ -1,9 +1,10 @@
 import styled from "styled-components";
-import { CubeGrid } from "better-react-spinkit";
+import { Wave } from "better-react-spinkit";
+import styles from "../styles/loading.module.css"
 function Loading({ disable }) {
   return (
     <LoadingContainer>
-      {!disable && <CubeGrid color="#2da639" size={100} />}
+      {!disable && <Wave color="#37caec" className={styles.loading} size={100} />}
     </LoadingContainer>
   );
 };

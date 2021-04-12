@@ -31,11 +31,11 @@ const Container = styled.div`
   
 `;
 const LoginButton = styled.div`
-  border: 2px solid #2da639;
+  border: 2px solid #37caec;
 
   transition: 0.3s;
   :hover {
-    border: 2px solid #2da639;
+    border: 2px solid #37caec;
   }
   
   @media (max-width: 600px) {
@@ -51,7 +51,7 @@ const LoginItems = styled.div`
 
 const LoginContainer = styled.div`
   /* background-color: white;   */
-  border-left: 2px solid #2da639;
+  border-left: 2px solid #37caec;
   width: 100%;
   height: 100%;
   transform: skewX(40deg);

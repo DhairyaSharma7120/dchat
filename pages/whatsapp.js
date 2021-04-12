@@ -76,14 +76,14 @@ const Icon = styled.div`
   display: grid;
   place-content: center;
   align-content: flex-end;
-  color: #07bc4c;
+  color: #37caec;
   right: 0;
 `;
 const Message = styled.div`
   justify-self: center;
 
   font-weight:bold;
-  color: #07bc4c;
+  color: #37caec;
   right: 0;
 `;
 
