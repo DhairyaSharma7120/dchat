@@ -14,11 +14,40 @@ import firebase from "firebase";
 import Message from "./Message";
 import getRecipientEmail from "../utils/getRecipientEmail";
 import TimeAgo from "timeago-react";
-import {app} from "../firebase"
+import { app } from "../firebase";
+import SendIcon from "@material-ui/icons/Send";
+import React from "react";
+import { makeStyles } from "@material-ui/core/styles";
+import Modal from "@material-ui/core/Modal";
+import Backdrop from "@material-ui/core/Backdrop";
+import Fade from "@material-ui/core/Fade";
+import { DevicesRounded } from "@material-ui/icons";
+import CloseIcon from '@material-ui/icons/Close';
+
+const useStyles = makeStyles((theme) => ({
+  modal: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  paper: {
+    backgroundColor: theme.palette.background.paper,
+    border: "2px solid #000",
+    boxShadow: theme.shadows[5],
+    padding: theme.spacing(2, 4, 3),
+    display: "grid",
+    gridTemplateRows: "33% 33% 33%",
+  },
+}));
 function ChatScreen({ chat, messages }) {
+  const fileAttachRef = useRef(null);
   const endOfTheMessageRef = useRef(null);
   const [input, setInput] = useState("");
-  
+  const [fileToUpload, setFileToUpload] = useState(null);
+  const [preview, setPreview] = useState(false);
+  const [recording,setRecording] = useState(false);
+  const [previewImg, setPreviewImg] = useState(null);
+  const [audioUrl, setAudioUrl] = useState(null);
   const [user] = useAuthState(auth);
   const router = useRouter();
   const [messagesSnapshot] = useCollection(
@@ -80,15 +109,23 @@ function ChatScreen({ chat, messages }) {
     scrollToBottom();
   };
 
+  const handleFile = async (e) => {
+    setFileToUpload(e.target.files[0]);
+    setPreviewImg(URL.createObjectURL(e.target.files[0]));
+    setOpen(true);
+    fileAttachRef.current.value = "";
+    console.log(previewImg, "this is we are getting in the state");
+  };
 
-  const handleFile = async (e)=>{
-    const file = e.target.files[0]
-    console.log(file,"this is the file")
-    const storageRef = app.storage().ref()
-    const fileRef = storageRef.child(file.name)
-    await fileRef.put(file).then(()=>console.log("uploaded"))
-    const fileUrl = await fileRef.getDownloadURL()
-    
+  const handleFileUpload = async (e) => {
+    const file = fileToUpload;
+
+    console.log(file, "this is the file");
+    const storageRef = app.storage().ref();
+    const fileRef = storageRef.child(file.name);
+    await fileRef.put(file).then(() => console.log("uploaded"));
+    const fileUrl = await fileRef.getDownloadURL();
+
     e.preventDefault();
     db.collection("users").doc(user.uid).set(
       {
@@ -105,12 +142,103 @@ function ChatScreen({ chat, messages }) {
       photoURL: user.photoURL,
     });
 
+    setFileToUpload(null);
     scrollToBottom();
+    setOpen(false);
+  };
+
+  const recordAudio = async (e) => {
+    let device = navigator.mediaDevices.getUserMedia({audio: true})
+    let chunks = [];
+    let recorder;
+    device.then((stream) => {
+      recorder = new MediaRecorder(stream);
+
+      recorder.ondataavailable = (e) => {
+        chunks.push(e.data);
+
+        if (recorder.state == "inactive") {
+          let blob = new Blob(chunks, { type: "audio/webm" });
+          console.log(blob,"this is blob")
+          setAudioUrl(URL.createObjectURL(blob));
+        }
+      };
+      recorder.start();
+      setRecording(true)
+      console.log("recording started ");
+    });
+    if(e.target.value=="cancel") {recorder.stop();  return}
+    setTimeout(() => {
+      recorder.stop();
+      setRecording(false)
+      console.log("recording ended ss");
+      console.log(file, "this is the file");
+      const storageRef = app.storage().ref();
+
+      // const fileRef = storageRef.child(file.name);
+      // await fileRef.put(file).then(() => console.log("uploaded"));
+      // const fileUrl = await fileRef.getDownloadURL();
+      // db.collection("users").doc(user.uid).set(
+      //   {
+      //     lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+      //   },
+      //   { merge: true }
+      // );
+  
+      // db.collection("chats").doc(router.query.id).collection("messages").add({
+      //   timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      //   message: input,
+      //   messageAudio: audioUrl,
+      //   user: user.email,
+      //   photoURL: user.photoURL,
+      // });
+    }, 10000);
+
+  };
+  const stopAudioRecording = () => {
+    setRecording(false)
+    recorder.stop().then(()=>console.log("recording ended"))
+    
   }
   const recipient = recipientSnapshot?.docs?.[0]?.data();
   const recipientEmail = getRecipientEmail(chat.users, user);
+  const classes = useStyles();
+  const [open, setOpen] = React.useState(false);
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
   return (
     <Container>
+      <Modal
+        aria-labelledby="transition-modal-title"
+        aria-describedby="transition-modal-description"
+        className={classes.modal}
+        open={open}
+        onClose={handleClose}
+        closeAfterTransition
+        BackdropComponent={Backdrop}
+        BackdropProps={{
+          timeout: 500,
+        }}
+      >
+        <Fade in={open}>
+          <ModalPreview>
+            <h3>Preview</h3>
+            <PreviewImg src={previewImg} />
+
+            <div>
+              <SendIcon fontSize="large" onClick={handleFileUpload} />
+            </div>
+          </ModalPreview>
+        </Fade>
+      </Modal>
+
+      <audio src={audioUrl} />
       <Header>
         {recipient ? (
           <Avatar src={recipient?.photoURL} />
@@ -134,14 +262,21 @@ function ChatScreen({ chat, messages }) {
           )}
         </HeaderInfo>
         <HeaderIcon>
-          <UploadImage type="file" id="fileUpload" onChange={handleFile}></UploadImage>
+          <UploadImage
+            ref={fileAttachRef}
+            type="file"
+            accept="image/x-png,image/gif,image/jpeg"
+            id="fileUpload"
+            onChange={handleFile}
+          ></UploadImage>
           <IconButton>
             <CustomLabel for="fileUpload">
               <AttachFileIcon />
             </CustomLabel>
           </IconButton>
-
+          
           <IconButton>
+            
             <MoreVertIcon />
           </IconButton>
         </HeaderIcon>
@@ -161,11 +296,44 @@ function ChatScreen({ chat, messages }) {
         <button hidden disabled={!input} type="submit" onClick={sendMessage}>
           Send Message
         </button>
-        <MicIcon />
+        <IconButton>
+         {recording?<Recorder >
+              <CloseIcon value="cancel" onClick={e=>recordAudio(e)} />
+            </Recorder>:
+          <MicIcon onClick={recordAudio} />}
+        </IconButton>
       </InputContainer>
     </Container>
   );
 }
+
+const Recorder = styled.div``;
+const ModalPreview = styled.div`
+  background-color: white;
+  border: 4px solid #37caec;
+  display: grid;
+  > h3 {
+    justify-self: center;
+  }
+  > div {
+    justify-self: flex-end;
+    padding: 10px;
+    transition: 0.3s;
+    cursor: pointer;
+    :hover {
+      transform: scale(1.15);
+    }
+  }
+`;
+const Preview = styled.div`
+  height: 100%;
+  width: 100%;
+`;
+const PreviewImg = styled.img`
+  max-width: 600px;
+  max-height: 500px;
+`;
+
 const Container = styled.div`
   flex: 1;
   /* overflow:scroll; */
@@ -188,7 +356,7 @@ const CustomLabel = styled.label`
   cursor: pointer;
 `;
 const UploadImage = styled.input`
-  display: none; 
+  display: none;
   visibility: none;
 `;
 const InputContainer = styled.form`
