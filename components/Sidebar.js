@@ -19,21 +19,36 @@ function Sidebar({ email }) {
     .collection("chats")
     .where("users", "array-contains", user.email);
   const [chatsSnapshot] = useCollection(userChatRef);
-
+  
   // console.log(userChatRef,"this is the snapshot")
   const chatAlreadyExists = (recipientEmail) =>
     chatsSnapshot?.docs.some((chat) =>
       chat.data().users.some((user) => user === recipientEmail)
     );
 
+  const createChatWithPhoneNumber = ()=>{
+    const input = prompt('Enter the phone number')
+    if (!input) return null;
+    db.collection("users").get().then(querySnapshot => {
+      const documents = querySnapshot.docs.map(doc => doc.data().phoneNumber === `+91${input}` && doc.data().phoneNumber != user.phoneNumber)
+      if(documents[0]){ 
+        db.collection("chats").add({
+          users: [user.phoneNumber, `+91${input}`]
+        });}
+       else{console.log("user is not using app")}
+    })
+    
+  }
+
   const createChat = () => {
     const input = prompt(
-      "Enter The Email Of The User You Want To Start Chat With"
+      "Enter The Email Of The User or Phone Number You Want To Start Chat With"
     );
 
     if (!input) return null;
     // console.log(chatAlreadyExists(input),"this is boolean")
     // console.log(EmailValidator.validate(input),"this is the validator")
+ 
     if (
       EmailValidator.validate(input) &&
       !chatAlreadyExists(input) &&
@@ -69,7 +84,7 @@ function Sidebar({ email }) {
           <SearchInput />
         </SearchContainer>
       </Search>
-      <button className={styles.googleBtn} onClick={createChat}>
+      <button className={styles.googleBtn} onClick={createChatWithPhoneNumber}>
         Start a new chat
       </button>
 

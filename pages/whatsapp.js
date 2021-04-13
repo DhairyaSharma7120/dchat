@@ -12,10 +12,12 @@ import styled from "styled-components";
 function Home() {
   const [user] = useAuthState(auth);
   const [loading, setLoading] = useState(true);
+  
   useEffect(() => {
     if (user) {
       db.collection("users").doc(user.uid).set(
-        {
+        { 
+          phoneNumber: user.phoneNumber,
           email: user.email,
           lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
           photoURL: user.photoURL,
@@ -26,6 +28,7 @@ function Home() {
     setLoading(true);
   }, [user]);
   setTimeout(() => setLoading(false), 3000);
+  // console.log(user.phoneNumber,"this is the user we are getting")
   return (
     <div>
       <Head>
