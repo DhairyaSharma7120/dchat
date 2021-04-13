@@ -20,6 +20,10 @@ function Sidebar({ email }) {
     .where("users", "array-contains", user.email);
   const [chatsSnapshot] = useCollection(userChatRef);
   
+  const userChatRefWithPhone = db
+    .collection("chats")
+    .where("users", "array-contains", user.phoneNumber);
+  const [chatsSnapshotWithPhone] = useCollection(userChatRefWithPhone);
   // console.log(userChatRef,"this is the snapshot")
   const chatAlreadyExists = (recipientEmail) =>
     chatsSnapshot?.docs.some((chat) =>
@@ -34,7 +38,8 @@ function Sidebar({ email }) {
       if(documents[0]){ 
         db.collection("chats").add({
           users: [user.phoneNumber, `+91${input}`]
-        });}
+        });
+      console.log("chat created")}
        else{console.log("user is not using app")}
     })
     
@@ -90,6 +95,14 @@ function Sidebar({ email }) {
 
       <UserChatDetails className={`${styles2.sidebarChatDetail}`}>
         {" "}
+        {chatsSnapshotWithPhone?.docs.map((chat) => (
+          <Chat
+            key={chat.id}
+            id={chat.id}
+            chatsSnapshotWithPhone={chatsSnapshotWithPhone}
+            users={chat.data().users}
+          />
+        ))}
         {chatsSnapshot?.docs.map((chat) => (
           <Chat
             key={chat.id}

@@ -13,6 +13,7 @@ import { useState, useEffect } from "react";
 import firebase from "firebase";
 import Message from "./Message";
 import getRecipientEmail from "../utils/getRecipientEmail";
+import getRecipientPhoneNumber from "../utils/getRecipientPhoneNumber";
 import TimeAgo from "timeago-react";
 import { app } from "../firebase";
 import SendIcon from "@material-ui/icons/Send";
@@ -22,7 +23,7 @@ import Modal from "@material-ui/core/Modal";
 import Backdrop from "@material-ui/core/Backdrop";
 import Fade from "@material-ui/core/Fade";
 import { DevicesRounded } from "@material-ui/icons";
-import CloseIcon from '@material-ui/icons/Close';
+import CloseIcon from "@material-ui/icons/Close";
 
 const useStyles = makeStyles((theme) => ({
   modal: {
@@ -45,9 +46,10 @@ function ChatScreen({ chat, messages }) {
   const [input, setInput] = useState("");
   const [fileToUpload, setFileToUpload] = useState(null);
   const [preview, setPreview] = useState(false);
-  const [recording,setRecording] = useState(false);
+  const [recording, setRecording] = useState(false);
   const [previewImg, setPreviewImg] = useState(null);
   const [audioUrl, setAudioUrl] = useState(null);
+  const [audio, setAudio] = useState(null);
   const [user] = useAuthState(auth);
   const router = useRouter();
   const [messagesSnapshot] = useCollection(
@@ -62,6 +64,12 @@ function ChatScreen({ chat, messages }) {
     db
       .collection("users")
       .where("email", "==", getRecipientEmail(chat.users, user))
+  );
+
+  const [recipientSnapshotWithPhone] = useCollection(
+    db
+      .collection("users")
+      .where("phoneNumber", "==", getRecipientPhoneNumber(chat.users, user))
   );
   const showMessages = () => {
     if (messagesSnapshot) {
@@ -147,10 +155,15 @@ function ChatScreen({ chat, messages }) {
     setOpen(false);
   };
 
+  const uploadAudio = () => {
+    console.log(audio, "this is the audio file");
+  };
+
   const recordAudio = async (e) => {
-    let device = navigator.mediaDevices.getUserMedia({audio: true})
+    let device = navigator.mediaDevices.getUserMedia({ audio: true });
     let chunks = [];
     let recorder;
+
     device.then((stream) => {
       recorder = new MediaRecorder(stream);
 
@@ -159,49 +172,50 @@ function ChatScreen({ chat, messages }) {
 
         if (recorder.state == "inactive") {
           let blob = new Blob(chunks, { type: "audio/webm" });
-          console.log(blob,"this is blob")
-          setAudioUrl(URL.createObjectURL(blob));
+          console.log(blob, "this is blob");
+          setAudio(blob);
         }
       };
+
       recorder.start();
-      setRecording(true)
+      setRecording(true);
       console.log("recording started ");
     });
-    if(e.target.value=="cancel") {recorder.stop();  return}
+
+
+
+    if (e.target.value == "cancel") {
+      recorder.stop();
+      return;
+    }
+
+
+
+    let timer = 8000;
     setTimeout(() => {
       recorder.stop();
-      setRecording(false)
-      console.log("recording ended ss");
-      console.log(file, "this is the file");
-      const storageRef = app.storage().ref();
-
-      // const fileRef = storageRef.child(file.name);
-      // await fileRef.put(file).then(() => console.log("uploaded"));
-      // const fileUrl = await fileRef.getDownloadURL();
-      // db.collection("users").doc(user.uid).set(
-      //   {
-      //     lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
-      //   },
-      //   { merge: true }
-      // );
-  
-      // db.collection("chats").doc(router.query.id).collection("messages").add({
-      //   timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-      //   message: input,
-      //   messageAudio: audioUrl,
-      //   user: user.email,
-      //   photoURL: user.photoURL,
-      // });
-    }, 10000);
+      setRecording(false);
+      uploadAudio();
+      console.log("recording ended ");
+      setAudio(null);
+      // console.log(blob,"this is the blob down")
+    }, timer);
 
   };
+
   const stopAudioRecording = () => {
-    setRecording(false)
-    recorder.stop().then(()=>console.log("recording ended"))
-    
-  }
+    setRecording(false);
+    recorder.stop().then(() => console.log("recording ended"));
+  };
+
   const recipient = recipientSnapshot?.docs?.[0]?.data();
   const recipientEmail = getRecipientEmail(chat.users, user);
+
+  
+
+  const recipientWithPhone = recipientSnapshotWithPhone?.docs?.[0]?.data();
+  const recipientPhoneNumber = getRecipientPhoneNumber(chat.users, user);
+  // console.log(recipient,recipientEmail,"this is recipient")
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
 
@@ -212,6 +226,7 @@ function ChatScreen({ chat, messages }) {
   const handleClose = () => {
     setOpen(false);
   };
+
   return (
     <Container>
       <Modal
@@ -240,14 +255,22 @@ function ChatScreen({ chat, messages }) {
 
       <audio src={audioUrl} />
       <Header>
-        {recipient ? (
+      {recipientWithPhone? (<>
+      {recipientWithPhone ? (
+          <Avatar src={recipient?.photoURL} />
+        ) : (
+          <Avatar/>
+        )} </>)
+      :(<>
+      {recipient ? (
           <Avatar src={recipient?.photoURL} />
         ) : (
           <Avatar>{recipientEmail[0]}</Avatar>
-        )}
+        )} </>)}
 
         <HeaderInfo>
-          <h4>{recipientEmail}</h4>
+        {recipientWithPhone? (<h4>{recipientPhoneNumber}</h4> ):
+          (<><h4>{recipientEmail}</h4>
           {recipientSnapshot ? (
             <p>
               Last Active:{" "}
@@ -259,7 +282,7 @@ function ChatScreen({ chat, messages }) {
             </p>
           ) : (
             <p>Loading...</p>
-          )}
+          )}</>)}
         </HeaderInfo>
         <HeaderIcon>
           <UploadImage
@@ -274,9 +297,8 @@ function ChatScreen({ chat, messages }) {
               <AttachFileIcon />
             </CustomLabel>
           </IconButton>
-          
+
           <IconButton>
-            
             <MoreVertIcon />
           </IconButton>
         </HeaderIcon>
@@ -287,6 +309,7 @@ function ChatScreen({ chat, messages }) {
         <BeforeEnd>
           <p>{"Your chat is not encrypted this time"}</p>
         </BeforeEnd>
+
         <EndOfTheMessage ref={endOfTheMessageRef}>{""}</EndOfTheMessage>
       </MessageContainer>
 
@@ -297,10 +320,13 @@ function ChatScreen({ chat, messages }) {
           Send Message
         </button>
         <IconButton>
-         {recording?<Recorder >
-              <CloseIcon value="cancel" onClick={e=>recordAudio(e)} />
-            </Recorder>:
-          <MicIcon onClick={recordAudio} />}
+          {recording ? (
+            <Recorder>
+              <CloseIcon value="cancel" onClick={(e) => recordAudio(e)} />
+            </Recorder>
+          ) : (
+            <MicIcon onClick={recordAudio} />
+          )}
         </IconButton>
       </InputContainer>
     </Container>

@@ -17,7 +17,8 @@ const uiConfig = {
   signInOptions: [
     firebase.auth.GoogleAuthProvider.PROVIDER_ID,
     firebase.auth.EmailAuthProvider.PROVIDER_ID,
-    firebase.auth.PhoneAuthProvider.PROVIDER_ID
+    firebase.auth.PhoneAuthProvider.PROVIDER_ID,
+    
   ]
 };
 function Login() {
@@ -68,12 +69,7 @@ function Login() {
             className={styles.googleBtn}>LOGIN WITH GOOGLE</button> */}
             <StyledFirebaseAuth uiConfig={uiConfig} firebaseAuth={firebase.auth()}/>
           </LoginButton><br/>
-          <LoginButton>
-            <button 
-            onClick={()=>signInWithPhoneNumber()}
-            className={`${styles.googleBtn} sign-in-button`}>LOGIN WITH MOBILE NUMBER</button>
-          </LoginButton>
-          <div className="recaptcha-container" id="recaptcha-container"></div>
+        
         </LoginItems>
       </LoginContainer>
     </Container>

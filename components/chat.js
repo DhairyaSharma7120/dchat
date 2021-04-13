@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { Avatar } from "@material-ui/core";
 import getRecipientEmail from "../utils/getRecipientEmail";
+import getRecipientPhoneNumber from "../utils/getRecipientPhoneNumber";
 import { auth, db } from "../firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useCollection } from "react-firebase-hooks/firestore";
@@ -9,11 +10,11 @@ import MoreVertIcon from "@material-ui/icons/MoreVert";
 import { makeStyles } from "@material-ui/core/styles";
 import Popover from "@material-ui/core/Popover";
 import Typography from "@material-ui/core/Typography";
-import React, { useRef,useState } from "react";
-import Loading from "../pages/loading"
+import React, { useRef, useState } from "react";
+import Loading from "../pages/loading";
 
-function Chat({ id, users, chatsSnapshot }) {
-    const [loading, setLoading ] = useState(false);
+function Chat({ id, users, chatsSnapshot, chatsSnapshotWithPhone }) {
+  const [loading, setLoading] = useState(false);
   const useStyles = makeStyles((theme) => ({
     typography: {
       width: "150px",
@@ -22,11 +23,10 @@ function Chat({ id, users, chatsSnapshot }) {
       cursor: "pointer",
       padding: theme.spacing(2),
       transition: "0.3s",
-      '&:hover': {
-        fontSize: "90%"
-     },
+      "&:hover": {
+        fontSize: "90%",
+      },
     },
-    
   }));
 
   const classes = useStyles();
@@ -41,73 +41,107 @@ function Chat({ id, users, chatsSnapshot }) {
   };
 
   const open = Boolean(anchorEl);
-  const pid = open ? 'simple-popover' : undefined;
-
+  const pid = open ? "simple-popover" : undefined;
 
   const router = useRouter();
   const [user] = useAuthState(auth);
   const [recipientSnapshot] = useCollection(
     db.collection("users").where("email", "==", getRecipientEmail(users, user))
   );
+  const [recipientSnapshotWithPhone] = useCollection(
+    db
+      .collection("users")
+      .where("phoneNumber", "==", getRecipientPhoneNumber(users, user))
+  );
   const recipient = recipientSnapshot?.docs?.[0]?.data();
   const recipientEmail = getRecipientEmail(users, user);
 
+
+  const recipientWithPhone = recipientSnapshotWithPhone?.docs?.[0]?.data();
+  const recipientPhoneNumber = getRecipientPhoneNumber(users, user);
+
+  // console.log(recipientWithPhone,recipientPhoneNumber)
   const enterChat = () => {
     router.push(`/chat/${id}`);
   };
 
+  const deleteUser = () => {
+    router.replace(`/whatsapp`);
+    db.collection("chats").doc(id).delete();
+  };
 
-  const deleteUser = ()=>{
-    router.replace(`/whatsapp`)
-    db.collection("chats").doc(id).delete()    
-  }
+  const clearChat = () => {
+    db.collection("chats").doc(id).delete();
+  };
 
-  const clearChat = ()=>{
-
-    db.collection("chats").doc(id).delete()    
-  }
-
-  const load = ()=>{
-  
-    router.events.on('routeChangeStart', () => setLoading(true));
-    router.events.on('routeChangeComplete', () => setLoading(false));
-  }
-  return (<> { loading? (<Loading />):(
-    <Container onClick={load}>
-      <UserDetail  onClick={enterChat}>{recipient ? (
-        <UserAvatar src={recipient?.photoURL} />
+  const load = () => {
+    router.events.on("routeChangeStart", () => setLoading(true));
+    router.events.on("routeChangeComplete", () => setLoading(false));
+  };
+  return (
+    <>
+      {" "}
+      {loading ? (
+        <Loading />
       ) : (
-        <UserAvatar>{recipientEmail[0]}</UserAvatar>
+        <Container onClick={load}>
+          {recipientWithPhone ? (
+            <UserDetail onClick={enterChat}>
+              {recipientWithPhone ? (
+                <UserAvatar src={recipientWithPhone?.photoURL} />
+              ) : (
+                <UserAvatar/>
+              )}
+              {recipientWithPhone?.name ? (
+                <UserMail>{recipientWithPhone?.name}</UserMail>
+              ) : (
+                <UserMail>{recipientPhoneNumber}</UserMail>
+              )}
+              
+            </UserDetail>
+          ) : (
+            <UserDetail onClick={enterChat}>
+              {recipient ? (
+                <UserAvatar src={recipient?.photoURL} />
+              ) : (
+                <UserAvatar>{recipientEmail[0]}</UserAvatar>
+              )}
+              <UserMail>{recipientEmail}</UserMail>
+            </UserDetail>
+          )}
+
+          <Options>
+            <OptionsIcon
+              aria-describedby={id}
+              variant="contained"
+              color="primary"
+              onClick={handleClick}
+            />
+            <Popover
+              pid={pid}
+              open={open}
+              anchorEl={anchorEl}
+              onClose={handleClose}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "center",
+              }}
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "right",
+              }}
+            >
+              <Typography onClick={deleteUser} className={classes.typography}>
+                Delete User
+              </Typography>
+              <Typography onClick={clearChat} className={classes.typography}>
+                Clear Chat
+              </Typography>
+            </Popover>
+          </Options>
+        </Container>
       )}
-      <UserMail>{recipientEmail}</UserMail></UserDetail>
-      <Options><OptionsIcon
-        aria-describedby={id}
-        variant="contained"
-        color="primary"
-        onClick={handleClick}
-      />
-      <Popover
-        pid={pid}
-        open={open}
-        anchorEl={anchorEl}
-        onClose={handleClose}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "center",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "right",
-        }}
-      >
-        <Typography onClick={deleteUser} className={classes.typography}>
-          Delete User
-        </Typography>
-        <Typography onClick={clearChat} className={classes.typography}>
-          Clear Chat
-        </Typography>
-      </Popover></Options>
-    </Container>)}</>
+    </>
   );
 }
 const Container = styled.div`
@@ -119,7 +153,7 @@ const Container = styled.div`
   height: 80px;
   word-break: break-word;
   border-bottom: 1px solid #e9eaeb;
-  overflow:hidden;
+  overflow: hidden;
   transition: 0.1s;
   :hover {
     background-color: #f2f2f2;
@@ -132,21 +166,19 @@ const UserAvatar = styled(Avatar)`
   align-self: center;
 `;
 const UserDetail = styled.div`
-     align-self: center;
-     display:grid;
-     height: 100%;
-     grid-template-columns: 20% 80%;
+  align-self: center;
+  display: grid;
+  height: 100%;
+  grid-template-columns: 20% 80%;
 `;
 const UserMail = styled.div`
-     align-self: center;
-     width: 100%;
-     overflow: hidden;
-     display: grid;
-    
+  align-self: center;
+  width: 100%;
+  overflow: hidden;
+  display: grid;
 `;
 
 const OptionsIcon = styled(MoreVertIcon)`
-
   /* top: -1px; */
 
   opacity: 1;
@@ -155,8 +187,7 @@ const OptionsIcon = styled(MoreVertIcon)`
   transform: scale(0.8);
 `;
 const Options = styled.div`
-    
-    justify-self: center;
+  justify-self: center;
   align-self: center;
 `;
 
