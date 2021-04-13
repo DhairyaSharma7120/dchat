@@ -52,6 +52,9 @@ function ChatScreen({ chat, messages }) {
   const [audio, setAudio] = useState(null);
   const [user] = useAuthState(auth);
   const router = useRouter();
+
+
+  
   const [messagesSnapshot] = useCollection(
     db
       .collection("chats")
