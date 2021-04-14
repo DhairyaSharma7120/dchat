@@ -39,14 +39,14 @@ const useStyles = makeStyles((theme) => ({
   },
   typography: {
     width: "150px",
-      color: "red",
-      fontSize: "75%",
-      cursor: "pointer",
-      padding: theme.spacing(2),
-      transition: "0.3s",
-      "&:hover": {
-        fontSize: "90%",
-      },
+    color: "red",
+    fontSize: "75%",
+    cursor: "pointer",
+    padding: theme.spacing(2),
+    transition: "0.3s",
+    "&:hover": {
+      fontSize: "90%",
+    },
   },
 }));
 
@@ -133,7 +133,18 @@ function HeaderComponent({ chat, input, endOfTheMessageRef }) {
   };
 
   //this is the function to clear the chat
-  const clearChat = () => {};
+  const clearChat = async () => {
+    const instance = await db
+      .collection("chats")
+      .doc(router.query.id)
+      .collection("messages")
+      .get()
+      .then((res) => {
+        res.forEach((element) => {
+          element.ref.delete();
+        });
+      });
+  };
   // functions to open and close modal
   const handleOpen = () => {
     setOpen(true);
@@ -247,7 +258,7 @@ function HeaderComponent({ chat, input, endOfTheMessageRef }) {
           pid={pid}
           open={openOptions}
           anchorEl={anchorEl}
-          onClose={handleClose}
+          onClose={handleCloseChatOptions}
           anchorOrigin={{
             vertical: "bottom",
             horizontal: "center",
