@@ -214,29 +214,28 @@ const ModifiedFade = styled(Fade)`
       }
     }
 `;
-const Container = styled.div`
-  width: 30vw;
-  height: 100vh;
-  margin-left: 10px;
 
-  @media (max-width: 600px) {
-    width: 100vw;
-    /* margin-left: 12px; */
-    margin: 0px;
-  }
+const Container = styled.div`
+  width: 100%;
+  height: 100vh;
+  /* margin-left: 10px; */
+    /* padding-bottom: 0px;
+    overflow: hidden; */
 `;
+
 const UserChatDetails = styled.div``;
 const ModifiedCard = styled.div`
-height: 80vh;`;
+  height: 80vh;
+`;
 const Content = styled.div`
   margin-top: 20px;
   /* border: 1px solid #37caec; */
   background-color: white;
   height: 85vh;
-  box-shadow: 0px 0px 4px 0px #37caec
-  
+  box-shadow: 0px 0px 4px 0px #37caec;
   `;
 const SearchInput = styled.input`
+  width: 80%;
   outline: none;
   border: none;
   flex: 1;
@@ -270,10 +269,7 @@ const Header = styled.div`
   padding: 15px;
   height: 60px;
   border: 3px solid #37caec;
-  @media (max-width: 600px) {
-    border: none;
-    border-bottom: 3px solid #37caec;
-  }
+
 `;
 
 const UserAvatar = styled(Avatar)`

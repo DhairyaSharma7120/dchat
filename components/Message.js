@@ -25,7 +25,8 @@ function Message({ user, message, messageId }) {
   const unmountRef = useRef(null);
   const router = useRouter();
   const [userLoggedIn] = useAuthState(auth);
-  const TypeOfMessage = user === userLoggedIn.email ? Sender : Reciever;
+  // console.log(user === userLoggedIn.phoneNumber);
+  const TypeOfMessage = user === userLoggedIn.email ||user ===  userLoggedIn.phoneNumber ? Sender : Reciever;
   // console.log("this is also renderin");
   const messagesSnapshot = db
     .collection("chats")
