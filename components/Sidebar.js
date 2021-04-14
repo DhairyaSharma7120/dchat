@@ -13,6 +13,7 @@ import * as EmailValidator from "email-validator";
 import { useRef } from "react";
 import Card from '@material-ui/core/Card';
 import React from 'react';
+import { useRouter } from "next/router";
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import Modal from '@material-ui/core/Modal';
@@ -57,7 +58,7 @@ function Sidebar({ email }) {
   const disableEmailRef = useRef(null)
   const disablePhoneRef = useRef(null)
   const [user] = useAuthState(auth);
-
+  const router = useRouter();
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => {
     setOpen(true);
@@ -121,7 +122,7 @@ function Sidebar({ email }) {
   return (
     <Container>
       <Header>
-        <UserAvatar src={user?.photoURL} onClick={() => auth.signOut()} />
+        <UserAvatar src={user?.photoURL} onClick={() => {router.replace('/whatsapp');auth.signOut();}} />
         <IconContainer>
           <IconButton>
             <ChatIcon />
@@ -221,6 +222,10 @@ const Container = styled.div`
   /* margin-left: 10px; */
     /* padding-bottom: 0px;
     overflow: hidden; */
+    @media (max-width: 750px){
+      width: 100vw;
+      z-index: 99;
+    }
 `;
 
 const UserChatDetails = styled.div``;
