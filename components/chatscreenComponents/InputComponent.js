@@ -13,6 +13,7 @@ import Typography from "@material-ui/core/Typography";
 import { auth, db } from "../../firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 import firebase from "firebase";
+import SendIcon from "@material-ui/icons/Send";
 const useStyles = makeStyles((theme) => ({
   typography: {
     padding: theme.spacing(2),
@@ -158,6 +159,9 @@ function InputComponent({ input, setInput, endOfTheMessageRef }) {
       <button hidden disabled={!input} type="submit" onClick={sendMessage}>
         Send Message
       </button>
+      <IconButton>
+        <SendIcon onClick={sendMessage}/>
+      </IconButton>
       <IconButton>
         {recording ? (
           <Recorder>

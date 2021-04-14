@@ -11,19 +11,17 @@ import styles from "../styles/login.module.css";
 import styles2 from "../styles/sidebar.module.css";
 import * as EmailValidator from "email-validator";
 import { useRef } from "react";
-import Card from '@material-ui/core/Card';
-import React from 'react';
+import Card from "@material-ui/core/Card";
+import React from "react";
 import { useRouter } from "next/router";
-import PropTypes from 'prop-types';
-import { makeStyles } from '@material-ui/core/styles';
-import Modal from '@material-ui/core/Modal';
-import Backdrop from '@material-ui/core/Backdrop';
-import { useSpring, animated } from 'react-spring/web.cjs';
-import Button from '@material-ui/core/Button';
+import PropTypes from "prop-types";
+import { makeStyles } from "@material-ui/core/styles";
+import Modal from "@material-ui/core/Modal";
+import Backdrop from "@material-ui/core/Backdrop";
+import { useSpring, animated } from "react-spring/web.cjs";
+import Button from "@material-ui/core/Button";
 
 const Fade = React.forwardRef(function Fade(props, ref) {
-  
-
   const { in: open, children, onEnter, onExited, ...other } = props;
   const style = useSpring({
     from: { opacity: 0 },
@@ -55,8 +53,8 @@ Fade.propTypes = {
 };
 
 function Sidebar({ email }) {
-  const disableEmailRef = useRef(null)
-  const disablePhoneRef = useRef(null)
+  const disableEmailRef = useRef(null);
+  const disablePhoneRef = useRef(null);
   const [user] = useAuthState(auth);
   const router = useRouter();
   const [open, setOpen] = React.useState(false);
@@ -71,7 +69,7 @@ function Sidebar({ email }) {
     .collection("chats")
     .where("users", "array-contains", user.email);
   const [chatsSnapshot] = useCollection(userChatRef);
-  
+
   const userChatRefWithPhone = db
     .collection("chats")
     .where("users", "array-contains", user.phoneNumber);
@@ -82,20 +80,28 @@ function Sidebar({ email }) {
       chat.data().users.some((user) => user === recipientEmail)
     );
 
-  const createChatWithPhoneNumber = ()=>{
-    const input = prompt('Enter the phone number')
+  const createChatWithPhoneNumber = () => {
+    const input = prompt("Enter the phone number");
     if (!input) return null;
-    db.collection("users").get().then(querySnapshot => {
-      const documents = querySnapshot.docs.map(doc => doc.data().phoneNumber === `+91${input}` && doc.data().phoneNumber != user.phoneNumber)
-      if(documents[0]){ 
-        db.collection("chats").add({
-          users: [user.phoneNumber, `+91${input}`]
-        });
-      console.log("chat created")}
-       else{console.log("user is not using app")}
-    })
+    db.collection("users")
+      .get()
+      .then((querySnapshot) => {
+        const documents = querySnapshot.docs.map(
+          (doc) =>
+            doc.data().phoneNumber === `+91${input}` &&
+            doc.data().phoneNumber != user.phoneNumber
+        );
+        if (documents[0]) {
+          db.collection("chats").add({
+            users: [user.phoneNumber, `+91${input}`],
+          });
+          console.log("chat created");
+        } else {
+          console.log("user is not using app");
+        }
+      });
     setOpen(false);
-  }
+  };
 
   const createChat = () => {
     const input = prompt(
@@ -105,7 +111,7 @@ function Sidebar({ email }) {
     if (!input) return null;
     // console.log(chatAlreadyExists(input),"this is boolean")
     // console.log(EmailValidator.validate(input),"this is the validator")
- 
+
     if (
       EmailValidator.validate(input) &&
       !chatAlreadyExists(input) &&
@@ -118,11 +124,17 @@ function Sidebar({ email }) {
     }
     setOpen(false);
   };
-  console.log(user.email,"this is we are getting")
+  console.log(user.email, "this is we are getting");
   return (
     <Container>
       <Header>
-        <UserAvatar src={user?.photoURL} onClick={() => {router.replace('/whatsapp');auth.signOut();}} />
+        <UserAvatar
+          src={user?.photoURL}
+          onClick={() => {
+            router.replace("/whatsapp");
+            setTimeout(()=>auth.signOut(),500);
+          }}
+        />
         <IconContainer>
           <IconButton>
             <ChatIcon />
@@ -133,61 +145,69 @@ function Sidebar({ email }) {
         </IconContainer>
       </Header>
       <Content>
-      <Search>
-        <SearchContainer>
-          <IconButton>
-            <SearchIcon />
-          </IconButton>
+        <Search>
+          <SearchContainer>
+            <IconButton>
+              <SearchIcon />
+            </IconButton>
 
-          <SearchInput />
-        </SearchContainer>
-      </Search>
-      <button className={styles.googleBtn} onClick={handleOpen}>
-        Start a new chat
-      </button>
-      <ModifiedModal
-        aria-labelledby="spring-modal-title"
-        aria-describedby="spring-modal-description"
-      
-        open={open}
-        onClose={handleClose}
-        closeAfterTransition
-        BackdropComponent={Backdrop}
-        BackdropProps={{
-          timeout: 500,
-        }}
-      >
-        <ModifiedFade in={open}>
-          <div>
-            <h2 id="spring-modal-title">Chat Options</h2>
-            <Button id="spring-modal-description" 
-            disabled={!user.email}
-            onClick={createChat}>Email</Button>
-            <Button id="spring-modal-description" 
-            disabled={!user.phoneNumber}
-            onClick={createChatWithPhoneNumber}>Phone Number</Button>
-          </div>
-        </ModifiedFade>
-      </ModifiedModal>
-      <UserChatDetails className={`${styles2.sidebarChatDetail}`}>
-        {" "}
-        {chatsSnapshotWithPhone?.docs.map((chat) => (
-          <Chat
-            key={chat.id}
-            id={chat.id}
-            chatsSnapshotWithPhone={chatsSnapshotWithPhone}
-            users={chat.data().users}
-          />
-        ))}
-        {chatsSnapshot?.docs.map((chat) => (
-          <Chat
-            key={chat.id}
-            id={chat.id}
-            chatsSnapshot={chatsSnapshot}
-            users={chat.data().users}
-          />
-        ))}
-      </UserChatDetails></Content>
+            <SearchInput />
+          </SearchContainer>
+        </Search>
+        <button className={styles.googleBtn} onClick={handleOpen}>
+          Start a new chat
+        </button>
+        <ModifiedModal
+          aria-labelledby="spring-modal-title"
+          aria-describedby="spring-modal-description"
+          open={open}
+          onClose={handleClose}
+          closeAfterTransition
+          BackdropComponent={Backdrop}
+          BackdropProps={{
+            timeout: 500,
+          }}
+        >
+          <ModifiedFade in={open}>
+            <div>
+              <h2 id="spring-modal-title">Chat Options</h2>
+              <Button
+                id="spring-modal-description"
+                disabled={!user.email}
+                onClick={createChat}
+              >
+                Email
+              </Button>
+              <Button
+                id="spring-modal-description"
+                disabled={!user.phoneNumber}
+                onClick={createChatWithPhoneNumber}
+              >
+                Phone Number
+              </Button>
+            </div>
+          </ModifiedFade>
+        </ModifiedModal>
+        <UserChatDetails className={`${styles2.sidebarChatDetail}`}>
+          {" "}
+          {chatsSnapshotWithPhone?.docs.map((chat) => (
+            <Chat
+              key={chat.id}
+              id={chat.id}
+              chatsSnapshotWithPhone={chatsSnapshotWithPhone}
+              users={chat.data().users}
+            />
+          ))}
+          {chatsSnapshot?.docs.map((chat) => (
+            <Chat
+              key={chat.id}
+              id={chat.id}
+              chatsSnapshot={chatsSnapshot}
+              users={chat.data().users}
+            />
+          ))}
+        </UserChatDetails>
+      </Content>
     </Container>
   );
 }
@@ -197,35 +217,34 @@ const ModifiedModal = styled(Modal)`
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgba(0,0,0,0.5)
-  
+  background-color: rgba(0, 0, 0, 0.5);
 `;
 const ModifiedFade = styled(Fade)`
-    background-color: white;
-    outline: none;
-    padding: 20px;
-    border-radius: 0px;
-    >div{
-      >p{
-        cursor: pointer;
-        transition: 0.3s;
-        :hover{
-          font-size:105%;
-        }
+  background-color: white;
+  outline: none;
+  padding: 20px;
+  border-radius: 0px;
+  > div {
+    > p {
+      cursor: pointer;
+      transition: 0.3s;
+      :hover {
+        font-size: 105%;
       }
     }
+  }
 `;
 
 const Container = styled.div`
   width: 100%;
   height: 100vh;
   /* margin-left: 10px; */
-    /* padding-bottom: 0px;
+  /* padding-bottom: 0px;
     overflow: hidden; */
-    @media (max-width: 750px){
-      width: 100vw;
-      z-index: 99;
-    }
+  @media (max-width: 750px) {
+    width: 100vw;
+    z-index: 99;
+  }
 `;
 
 const UserChatDetails = styled.div``;
@@ -238,7 +257,7 @@ const Content = styled.div`
   background-color: white;
   height: 85vh;
   box-shadow: 0px 0px 4px 0px #37caec;
-  `;
+`;
 const SearchInput = styled.input`
   width: 80%;
   outline: none;
@@ -274,7 +293,6 @@ const Header = styled.div`
   padding: 15px;
   height: 60px;
   border: 3px solid #37caec;
-
 `;
 
 const UserAvatar = styled(Avatar)`
