@@ -10,7 +10,7 @@ import Chat from "../components/chat";
 import styles from "../styles/login.module.css";
 import styles2 from "../styles/sidebar.module.css";
 import * as EmailValidator from "email-validator";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import Card from "@material-ui/core/Card";
 import React from "react";
 import { useRouter } from "next/router";
@@ -55,9 +55,12 @@ Fade.propTypes = {
 function Sidebar({ email }) {
   const disableEmailRef = useRef(null);
   const disablePhoneRef = useRef(null);
+  const [newChatInput , setNewChatInput] = useState(null);
   const [user] = useAuthState(auth);
   const router = useRouter();
   const [open, setOpen] = React.useState(false);
+  const [openNewChatWithEmail, setOpenNewChatWithEmail] = React.useState(false);
+  const [openNewChatWithPhoneNumber, setOpenNewChatWithPhoneNumber] = React.useState(false);
   const handleOpen = () => {
     setOpen(true);
   };
@@ -65,6 +68,23 @@ function Sidebar({ email }) {
   const handleClose = () => {
     setOpen(false);
   };
+
+  const handleOpenNewChatWithEmail = () => {
+    setOpenNewChatWithEmail(true);
+  };
+
+  const handleCloseNewChatWithEmail = () => {
+    setOpenNewChatWithEmail(false);
+  };
+
+  const handleOpenNewChatWithPhoneNumber = () => {
+    setOpenNewChatWithPhoneNumber(true);
+  };
+
+  const handleCloseNewChatWithPhoneNumber = () => {
+    setOpenNewChatWithPhoneNumber(false);
+  };
+
   const userChatRef = db
     .collection("chats")
     .where("users", "array-contains", user.email);
@@ -81,7 +101,7 @@ function Sidebar({ email }) {
     );
 
   const createChatWithPhoneNumber = () => {
-    const input = prompt("Enter the phone number");
+    const input = newChatInput;
     if (!input) return null;
     db.collection("users")
       .get()
@@ -100,14 +120,13 @@ function Sidebar({ email }) {
           console.log("user is not using app");
         }
       });
+    setOpenNewChatWithPhoneNumber(false);
     setOpen(false);
   };
 
-  const createChat = () => {
-    const input = prompt(
-      "Enter The Email Of The User or Phone Number You Want To Start Chat With"
-    );
-
+  const createChat = (e) => {
+    const input = newChatInput;
+    console.log(input,"this is the input")
     if (!input) return null;
     // console.log(chatAlreadyExists(input),"this is boolean")
     // console.log(EmailValidator.validate(input),"this is the validator")
@@ -122,9 +141,11 @@ function Sidebar({ email }) {
         users: [user.email, input],
       });
     }
+    setOpenNewChatWithEmail(false);
     setOpen(false);
+    
   };
-  console.log(user.email, "this is we are getting");
+  // console.log(newChatInput, "this is we are getting");
   return (
     <Container>
       <Header>
@@ -160,6 +181,68 @@ function Sidebar({ email }) {
         <ModifiedModal
           aria-labelledby="spring-modal-title"
           aria-describedby="spring-modal-description"
+          open={openNewChatWithEmail}
+          onClose={handleCloseNewChatWithEmail}
+          closeAfterTransition
+          BackdropComponent={Backdrop}
+          BackdropProps={{
+            timeout: 500,
+          }}
+        >
+          <ModifiedFade in={openNewChatWithEmail}>
+            <div>
+              <h2 id="spring-modal-title">Chat Options</h2>
+              <input
+                id="spring-modal-description"
+              
+                onChange={e=>setNewChatInput(e.target.value)}
+              />
+              
+              <Button
+                id="spring-modal-description"
+                
+                value={newChatInput}
+                onClick={createChat}
+              >
+                Create Chat
+              </Button>
+            </div>
+          </ModifiedFade>
+        </ModifiedModal>
+
+        <ModifiedModal
+          aria-labelledby="spring-modal-title"
+          aria-describedby="spring-modal-description"
+          open={openNewChatWithPhoneNumber}
+          onClose={handleCloseNewChatWithPhoneNumber}
+          closeAfterTransition
+          BackdropComponent={Backdrop}
+          BackdropProps={{
+            timeout: 500,
+          }}
+        >
+          <ModifiedFade in={openNewChatWithPhoneNumber}>
+            <div>
+              <h2 id="spring-modal-title">Chat Options</h2>
+              <input
+                id="spring-modal-description"
+           
+                onChange={e=>setNewChatInput(e.target.value)}
+              />
+              
+              <Button
+                id="spring-modal-description"
+                onClick={createChatWithPhoneNumber}
+              >
+                Create Chat
+              </Button>
+            </div>
+          </ModifiedFade>
+        </ModifiedModal>
+
+        <ModifiedModal
+          aria-labelledby="spring-modal-title"
+          aria-describedby="spring-modal-description"
           open={open}
           onClose={handleClose}
           closeAfterTransition
@@ -174,14 +257,14 @@ function Sidebar({ email }) {
               <Button
                 id="spring-modal-description"
                 disabled={!user.email}
-                onClick={createChat}
+                onClick={handleOpenNewChatWithEmail}
               >
                 Email
               </Button>
               <Button
                 id="spring-modal-description"
                 disabled={!user.phoneNumber}
-                onClick={createChatWithPhoneNumber}
+                onClick={handleOpenNewChatWithPhoneNumber}
               >
                 Phone Number
               </Button>

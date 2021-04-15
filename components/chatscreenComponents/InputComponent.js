@@ -14,6 +14,7 @@ import { auth, db } from "../../firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 import firebase from "firebase";
 import SendIcon from "@material-ui/icons/Send";
+import { app } from "../../firebase";
 const useStyles = makeStyles((theme) => ({
   typography: {
     padding: theme.spacing(2),
@@ -33,57 +34,85 @@ function InputComponent({ input, setInput, endOfTheMessageRef }) {
     });
   };
 
-  const uploadAudio = () => {
-    console.log(audio, "this is the audio file");
+  const uploadAudio = async (blob) => {
+    console.log(blob, "this is the audio file in upload file");
+    const storageRef = app.storage().ref();
+    const fileRef = storageRef.child(blob.name);
+    await fileRef.put(blob).then(() => console.log("uploaded"));
+    const fileUrl = await fileRef.getDownloadURL();
+    
+    db.collection("users").doc(user.uid).set(
+      {
+        lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+      },
+      { merge: true }
+    );
+
+    db.collection("chats").doc(router.query.id).collection("messages").add({
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      message: input,
+      messageAudio: fileUrl,
+      user: user.email,
+      photoURL: user.photoURL,
+    });
+
   };
 
   const recordAudio = async (e) => {
     let device = navigator.mediaDevices.getUserMedia({ audio: true });
     let chunks = [];
-    let recorder;
-
+    var recorder;
+    
     device.then((stream) => {
       recorder = new MediaRecorder(stream);
-
+     
       recorder.ondataavailable = (e) => {
+        console.log(e.data,"this is e.data")
+        chunks = [];
         chunks.push(e.data);
-
+     
         if (recorder.state == "inactive") {
           let blob = new Blob(chunks, { type: "audio/webm" });
           console.log(blob, "this is blob");
-          setAudio(blob);
+        
+          blob.name = "audio file"
+          console.log(blob,"this is the blob");
+
+          
+          uploadAudio(blob)
         }
       };
-
+      
+      
       recorder.start();
       setRecording(true);
       console.log("recording started ");
     });
 
-    if (e.target.value == "cancel") {
-      recorder.stop();
-      return;
-    }
+    
 
-    let timer = 8000;
+    let timer = 10000;
     setTimeout(() => {
       recorder.stop();
       setRecording(false);
-      uploadAudio();
+ 
       console.log("recording ended ");
-      setAudio(null);
+      // setAudio(null);
       // console.log(blob,"this is the blob down")
     }, timer);
   };
 
   const stopAudioRecording = () => {
     setRecording(false);
-    recorder.stop().then(() => console.log("recording ended"));
+    recorder.stop().then(() => console.log("recording ended yo"));
   };
 
   //  send message function
   const sendMessage = (e) => {
-    
+    if(input.trim() === "" || input == ""){
+      return
+    }
+    console.log(input.trim())
     e.preventDefault();
     db.collection("users").doc(user.uid).set(
       {
@@ -104,6 +133,7 @@ function InputComponent({ input, setInput, endOfTheMessageRef }) {
   };
 
   const handleInputText = (e) => {
+    
     setInput(e.target.value);
   };
 
@@ -165,7 +195,7 @@ function InputComponent({ input, setInput, endOfTheMessageRef }) {
       <IconButton>
         {recording ? (
           <Recorder>
-            <CloseIcon value="cancel" onClick={(e) => recordAudio(e)} />
+            <CloseIcon value="cancel" onClick={recordAudio(e)} />
           </Recorder>
         ) : (
           <MicIcon onClick={recordAudio} />

@@ -54,6 +54,10 @@ function Message({ user, message, messageId }) {
   return (
     <Container>
       <TypeOfMessage ref={unmountRef}>
+        {message.messageAudio && 
+        <audio controls>
+          <source src={message.messageAudio} type="audio/webm"/>
+        </audio>}
         {message.messageImg ? (
           <>
             <Image src={message.messageImg} />
