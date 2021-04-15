@@ -195,7 +195,7 @@ function InputComponent({ input, setInput, endOfTheMessageRef }) {
       <IconButton>
         {recording ? (
           <Recorder>
-            <CloseIcon value="cancel" onClick={recordAudio(e)} />
+            <CloseIcon value="cancel" onClick={e=>recordAudio(e)} />
           </Recorder>
         ) : (
           <MicIcon onClick={recordAudio} />
