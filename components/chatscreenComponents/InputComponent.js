@@ -62,10 +62,10 @@ function InputComponent({ input, setInput, endOfTheMessageRef }) {
     let device = navigator.mediaDevices.getUserMedia({ audio: true });
     let chunks = [];
     var recorder;
-    
+    console.log(e.target.value,"this is the value of e")
     device.then((stream) => {
       recorder = new MediaRecorder(stream);
-     
+      
       recorder.ondataavailable = (e) => {
         console.log(e.data,"this is e.data")
         chunks = [];
@@ -83,7 +83,10 @@ function InputComponent({ input, setInput, endOfTheMessageRef }) {
         }
       };
       
-      
+      if(e.target.value == "cancel"){
+        recorder.stop();
+        return;
+      }
       recorder.start();
       setRecording(true);
       console.log("recording started ");
