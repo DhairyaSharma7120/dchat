@@ -204,7 +204,7 @@ function Sidebar({ email }) {
               }}
             >
               <Typography onClick={() => {
-            router.replace("/whatsapp");
+            router.replace("/");
             setTimeout(()=>auth.signOut(),500);
           }} className={classes.typography}>
                 Log Out
