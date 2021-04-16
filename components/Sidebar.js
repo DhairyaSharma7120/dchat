@@ -20,6 +20,8 @@ import Modal from "@material-ui/core/Modal";
 import Backdrop from "@material-ui/core/Backdrop";
 import { useSpring, animated } from "react-spring/web.cjs";
 import Button from "@material-ui/core/Button";
+import Popover from "@material-ui/core/Popover";
+import Typography from "@material-ui/core/Typography";
 
 const Fade = React.forwardRef(function Fade(props, ref) {
   const { in: open, children, onEnter, onExited, ...other } = props;
@@ -61,6 +63,34 @@ function Sidebar({ email }) {
   const [open, setOpen] = React.useState(false);
   const [openNewChatWithEmail, setOpenNewChatWithEmail] = React.useState(false);
   const [openNewChatWithPhoneNumber, setOpenNewChatWithPhoneNumber] = React.useState(false);
+  const useStyles = makeStyles((theme) => ({
+    typography: {
+      width: "150px",
+      color: "red",
+      fontSize: "75%",
+      cursor: "pointer",
+      padding: theme.spacing(2),
+      transition: "0.3s",
+      "&:hover": {
+        fontSize: "90%",
+      },
+    },
+  }));
+
+  const classes = useStyles();
+  const [anchorEl, setAnchorEl] = React.useState(null);
+
+  const handleOpenPopover = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClosePopover = () => {
+    setAnchorEl(null);
+  };
+
+  const openPopover = Boolean(anchorEl);
+  const pid = openPopover ? "simple-popover" : undefined;
+
   const handleOpen = () => {
     setOpen(true);
   };
@@ -151,17 +181,35 @@ function Sidebar({ email }) {
       <Header>
         <UserAvatar
           src={user?.photoURL}
-          onClick={() => {
-            router.replace("/whatsapp");
-            setTimeout(()=>auth.signOut(),500);
-          }}
+          
         />
         <IconContainer>
           <IconButton>
             <ChatIcon />
           </IconButton>
           <IconButton>
-            <MoreVertIcon />
+            <MoreVertIcon onClick={handleOpenPopover}/>
+            <Popover
+              pid={pid}
+              open={openPopover}
+              anchorEl={anchorEl}
+              onClose={handleClosePopover}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "center",
+              }}
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "right",
+              }}
+            >
+              <Typography onClick={() => {
+            router.replace("/whatsapp");
+            setTimeout(()=>auth.signOut(),500);
+          }} className={classes.typography}>
+                Log Out
+              </Typography>
+            </Popover>
           </IconButton>
         </IconContainer>
       </Header>

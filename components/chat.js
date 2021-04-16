@@ -9,7 +9,7 @@ import { useRouter } from "next/router";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import { makeStyles } from "@material-ui/core/styles";
 import Popover from "@material-ui/core/Popover";
-import Typography from "@material-ui/core/Typography";
+import Typography from "@material-ui/core/Typography";   
 import React, { useRef, useState } from "react";
 import Loading from "../pages/loading";
 
