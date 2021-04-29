@@ -133,6 +133,7 @@ function Sidebar({ email }) {
   const createChatWithPhoneNumber = () => {
     const input = newChatInput;
     if (!input) return null;
+    // console.log(user.phoneNumber,"this is users Number")
     db.collection("users")
       .get()
       .then((querySnapshot) => {
@@ -141,14 +142,18 @@ function Sidebar({ email }) {
             doc.data().phoneNumber === `+91${input}` &&
             doc.data().phoneNumber != user.phoneNumber
         );
-        if (documents[0]) {
-          db.collection("chats").add({
-            users: [user.phoneNumber, `+91${input}`],
-          });
-          console.log("chat created");
-        } else {
-          console.log("user is not using app");
-        }
+        // console.log(documents, "this is the document")
+        documents.map(ele => ele? db.collection("chats").add({
+          users: [user.phoneNumber, `+91${input}`],
+        }) :  console.log("user is not using app") )
+      //   if (documents[0]) {
+      //     db.collection("chats").add({
+      //       users: [user.phoneNumber, `+91${input}`],
+      //     });
+      //     console.log("chat created");
+      //   } else {
+      //     console.log("user is not using app");
+      //   }
       });
     setOpenNewChatWithPhoneNumber(false);
     setOpen(false);
@@ -175,7 +180,7 @@ function Sidebar({ email }) {
     setOpen(false);
     
   };
-  // console.log(newChatInput, "this is we are getting");
+  console.log(user.phoneNumber, "this is we are getting");
   return (
     <Container>
       <Header>

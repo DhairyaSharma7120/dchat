@@ -8,6 +8,8 @@ import Login from "./login";
 import Loading from "./loading";
 import firebase from "firebase";
 import WhatsAppIcon from "@material-ui/icons/WhatsApp";
+import ForumIcon from '@material-ui/icons/Forum';
+import SmsSharpIcon from '@material-ui/icons/SmsSharp';
 import styled from "styled-components";
 function Home() {
   const [user] = useAuthState(auth);
@@ -45,8 +47,8 @@ function Home() {
           <WhatsApp>
             <Sidebar /> 
             <Welcome>
-              <Icon><WhatsAppIcon style={{ fontSize: 400 }}/></Icon>
-              <Message>Welcome to whatsapp clone made by Drockss</Message>
+              <Icon><ForumIcon style={{ fontSize: 200 }}/></Icon>
+              <Message>Chat Application Made By Drockss</Message>
             </Welcome>
           </WhatsApp>
         )}

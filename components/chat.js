@@ -66,7 +66,7 @@ function Chat({ id, users, chatsSnapshot, chatsSnapshotWithPhone }) {
   };
 
   const deleteUser = () => {
-    router.replace(`/whatsapp`);
+    router.replace(`/`);
     db.collection("chats").doc(id).delete();
   };
 
