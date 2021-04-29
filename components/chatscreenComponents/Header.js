@@ -345,4 +345,9 @@ const Preview = styled.div`
 const PreviewImg = styled.img`
   max-width: 600px;
   max-height: 500px;
+
+  @media (max-width: 750px) {
+    max-width: 300px;
+    max-height: 400px;
+  }
 `;
