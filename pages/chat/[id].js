@@ -11,10 +11,10 @@ import getRecipientEmail from "../../utils/getRecipientEmail";
 function Chat({ messages, chat }) {
   // console.log(messages,chat, " this is laddmald ")
   const [user] = useAuthState(auth);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const recipientEmail = getRecipientEmail(chat.users, user);
   // console.log(recipientEmail,"this is the mail we are getting")
-  useEffect(() => setTimeout(() => setLoading(false), 3000));
+  // useEffect(() => setTimeout(() => setLoading(false), 3000));
   return (
     <>
       {loading ? (

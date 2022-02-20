@@ -11,13 +11,14 @@ import WhatsAppIcon from "@material-ui/icons/WhatsApp";
 import ForumIcon from '@material-ui/icons/Forum';
 import SmsSharpIcon from '@material-ui/icons/SmsSharp';
 import styled from "styled-components";
-function Home() {
-  const [user] = useAuthState(auth);
+const Home = () =>{
   const [loading, setLoading] = useState(true);
+  const [user] = useAuthState(auth);
   
-  useEffect(() => {
+  useEffect(async() => {
+    setLoading(true);
     if (user) {
-      db.collection("users").doc(user.uid).set(
+      await db.collection("users").doc(user.uid).set(
         { 
           phoneNumber: user.phoneNumber,
           email: user.email,
@@ -27,9 +28,9 @@ function Home() {
         { merge: true }
       );
     }
-    setLoading(true);
+    setLoading(false)
   }, [user]);
-  setTimeout(() => setLoading(false), 3000);
+  // setTimeout(() => setLoading(false), 3000);
   // console.log(user.phoneNumber,"this is the user we are getting")
   return (
     <div>
@@ -48,7 +49,7 @@ function Home() {
             <Sidebar /> 
             <Welcome>
               <Icon><ForumIcon style={{ fontSize: 200 }}/></Icon>
-              <Message>Chat Application Made By Drockss</Message>
+              <Message>Chat Application Made By Dhairya</Message>
             </Welcome>
           </WhatsApp>
         )}
